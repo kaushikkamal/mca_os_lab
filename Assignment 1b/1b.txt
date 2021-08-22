@@ -1,0 +1,5 @@
+Write a C program like the assignment 1(a). But here use the system call wait() system to synchronize the execution of parent program in your program until child process finishes.
+
+Hints:
+
+* For wait() system call , you need a header file #include<sys/wait.h>
