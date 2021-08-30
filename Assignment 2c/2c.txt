@@ -1,0 +1,1 @@
+Write a C program that takes as input a list of processes, their arrival times and their CPU burst times. Schedule the processes into the CPU using both preemptive and non-preemptive Priority based scheduling algorithms. For any tie breaking condition apply FCFS algorithm. Print the Gantt chart. Also compute their average waiting time and average turn around time.

@@ -1,0 +1,1 @@
+Write a C program that takes as input a list of processes, their arrival times and their CPU burst times. Schedule the processes into the CPU using Round Robin algorithm. Take the time quantum as user input. Print the Gantt chart. Also compute their average waiting time and average turn around time.
