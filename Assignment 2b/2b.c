@@ -1,106 +1,109 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 typedef struct
 {
-    int PNO, AT, BT, CT, TAT, WT;
+    int PNO, AT, BT, WT, TAT, rnt;
 } PROCESS;
 
-typedef struct
+void sortProcessByArrivalTime(PROCESS a[], int pro)
 {
-    int n;
-    PROCESS *list;
-} PROCESS_LIST;
-
-int insert_data(PROCESS_LIST *process_list, int n)
-{
-    process_list->n = n;
-    process_list->list = (PROCESS *)malloc(n * sizeof(PROCESS));
-
-    if (process_list->list == NULL)
+    int i, j;
+    PROCESS temp;
+    for (i = 0; i < pro; i++)
     {
-        return 1;
+        for (j = i + 1; j < pro; j++)
+        {
+            if (a[i].AT > a[j].AT)
+            {
+                temp = a[i];
+                a[i] = a[j];
+                a[j] = temp;
+            }
+        }
     }
-
-    PROCESS p1 = {1, 0, 53};
-    PROCESS p2 = {2, 0, 17};
-    PROCESS p3 = {3, 0, 68};
-    PROCESS p4 = {4, 0, 24};
-
-    int i;
-
-    //  1
-    process_list->list[0].PNO = 1;
-    (process_list->list)[0].AT = 0;
-    (process_list->list)[0].BT = 53;
-
-    //  2
-    process_list->list[1].PNO = 2;
-    (process_list->list)[1].AT = 0;
-    (process_list->list)[1].BT = 17;
-
-    //  3
-    process_list->list[2].PNO = 3;
-    (process_list->list)[2].AT = 0;
-    (process_list->list)[2].BT = 68;
-
-    //  4
-    process_list->list[3].PNO = 4;
-    (process_list->list)[3].AT = 0;
-    (process_list->list)[3].BT = 24;
-
-    // for (i = 0; i < n; i++)
-    // {
-    //     process_list->list[i].PNO = i + 1;
-    //     printf("\nEnter the arrival time of process %d: ", i + 1);
-    //     scanf("%d", &(process_list->list)[i].AT);
-    //     printf("\nEnter the burst time of process %d: ", i + 1);
-    //     scanf("%d", &(process_list->list)[i].BT);
-    //     printf("\n");
-    // }
-
-    return 0;
-}
-
-int display_data(PROCESS_LIST *process_list)
-{
-    int i;
-    for (i = 0; i < process_list->n; i++)
-    {
-        printf("\nProcess no. : %d ", i + 1);
-        printf("\nArrival Time : %d ", (process_list->list)[i].AT);
-        printf("\nBurst Time : %d ", (process_list->list)[i].BT);
-        printf("\n");
-    }
-    return 0;
 }
 
 int main()
 {
-    int TQ = 20;
-    PROCESS_LIST process_list;
+    int i, j, numProcess, time, remain, flag = 0, TQ;
+    PROCESS process[100];
+    float avgWT = 0.0, avgTAT = 0.0;
 
-    int n, result;
-    do
+    printf("Enter Number Of Processes : ");
+    scanf("%d", &numProcess);
+    remain = numProcess;
+
+    for (i = 0; i < numProcess; i++)
     {
-        printf("\nEnter the number of processes: ");
-        scanf("%d", &n);
-
-        if (n > 0)
-            break;
-
-        printf("\nEntered number should be greater than 0\n");
-
-    } while (n <= 0);
-
-    result = insert_data(&process_list, n);
-    if (result)
-    {
-        printf("\nInsertion cannot be done!");
-        return 0;
+        printf("Enter Arrival time and Burst time for Process P%d : ", i + 1);
+        scanf("%d%d", &process[i].AT, &process[i].BT);
+        process[i].PNO = i + 1;
+        process[i].rnt = process[i].BT;
     }
-    result = display_data(&process_list);
+
+    sortProcessByArrivalTime(process, numProcess);
+
+    printf("\n");
+    printf("Enter Time Quantum : ");
+    scanf("%d", &TQ);
+    printf("\n");
+
+    printf("Gantt Chart\n");
+    printf("0");
+    for (time = 0, i = 0; remain != 0;)
+    {
+        if (process[i].rnt <= TQ && process[i].rnt > 0)
+        {
+            time = time + process[i].rnt;
+            printf(" -> P%d <- %d", process[i].PNO, time);
+            process[i].rnt = 0;
+            flag = 1;
+        }
+        else if (process[i].rnt > 0)
+        {
+            process[i].rnt = process[i].rnt - TQ;
+            time = time + TQ;
+            printf(" -> P%d <- %d", process[i].PNO, time);
+        }
+        if (process[i].rnt == 0 && flag == 1)
+        {
+            remain--;
+            process[i].TAT = time - process[i].AT;
+            process[i].WT = time - process[i].AT - process[i].BT;
+            avgWT = avgWT + time - process[i].AT - process[i].BT;
+            avgTAT = avgTAT + time - process[i].AT;
+            flag = 0;
+        }
+
+        if (i == numProcess - 1)
+        {
+            i = 0;
+        }
+        else if (process[i + 1].AT <= time)
+        {
+            i++;
+        }
+        else
+        {
+            i = 0;
+        }
+    }
+
+    printf("\n\n");
+
+    printf("Process\t  Arrival Time\tBurst Time\tTurn Around Time\tWaiting Time\n");
+
+    for (i = 0; i < numProcess; i++)
+    {
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PNO, process[i].AT, process[i].BT, process[i].TAT, process[i].WT);
+    }
+
+    avgWT = avgWT / numProcess;
+    avgTAT = avgTAT / numProcess;
+
+    printf("\n\n");
+    printf("Average Waiting Time : %.2f\n", avgWT);
+    printf("Average Turn Around Time : %.2f\n", avgTAT);
+
     return 0;
 }
