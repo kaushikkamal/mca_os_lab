@@ -2,32 +2,16 @@
 
 typedef struct
 {
-    int PNO, AT, BT, WT, TAT, rnt;
+    int PNO, AT, BT, WT, TAT, RT;
 } PROCESS;
 
-void sortProcessByArrivalTime(PROCESS a[], int pro)
-{
-    int i, j;
-    PROCESS temp;
-    for (i = 0; i < pro; i++)
-    {
-        for (j = i + 1; j < pro; j++)
-        {
-            if (a[i].AT > a[j].AT)
-            {
-                temp = a[i];
-                a[i] = a[j];
-                a[j] = temp;
-            }
-        }
-    }
-}
+void sortProcessByArrivalTime(PROCESS[], int);
 
 int main()
 {
     int i, j, numProcess, time, remain, flag = 0, TQ;
-    PROCESS process[100];
     float avgWT = 0.0, avgTAT = 0.0;
+    PROCESS process[100];
 
     printf("Enter Number Of Processes : ");
     scanf("%d", &numProcess);
@@ -35,37 +19,44 @@ int main()
 
     for (i = 0; i < numProcess; i++)
     {
-        printf("Enter Arrival time and Burst time for Process P%d : ", i + 1);
-        scanf("%d%d", &process[i].AT, &process[i].BT);
+        printf("For Process P%d\n", i + 1);
+        printf("Arrival Time : ");
+        scanf("%d", &process[i].AT);
+        printf("Burst Time : ");
+        scanf("%d", &process[i].BT);
         process[i].PNO = i + 1;
-        process[i].rnt = process[i].BT;
+        process[i].RT = process[i].BT;
+        printf("\n");
     }
 
     sortProcessByArrivalTime(process, numProcess);
 
-    printf("\n");
     printf("Enter Time Quantum : ");
     scanf("%d", &TQ);
     printf("\n");
 
+    time = 0;
+    i = 0;
+
     printf("Gantt Chart\n");
     printf("0");
-    for (time = 0, i = 0; remain != 0;)
+
+    while (remain)
     {
-        if (process[i].rnt <= TQ && process[i].rnt > 0)
+        if (process[i].RT <= TQ && process[i].RT > 0)
         {
-            time = time + process[i].rnt;
-            printf(" -> P%d <- %d", process[i].PNO, time);
-            process[i].rnt = 0;
+            time = time + process[i].RT;
+            printf(" - P%d - %d", process[i].PNO, time);
+            process[i].RT = 0;
             flag = 1;
         }
-        else if (process[i].rnt > 0)
+        else if (process[i].RT > 0)
         {
-            process[i].rnt = process[i].rnt - TQ;
+            process[i].RT = process[i].RT - TQ;
             time = time + TQ;
-            printf(" -> P%d <- %d", process[i].PNO, time);
+            printf(" - P%d - %d", process[i].PNO, time);
         }
-        if (process[i].rnt == 0 && flag == 1)
+        if (process[i].RT == 0 && flag == 1)
         {
             remain--;
             process[i].TAT = time - process[i].AT;
@@ -98,12 +89,27 @@ int main()
         printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PNO, process[i].AT, process[i].BT, process[i].TAT, process[i].WT);
     }
 
-    avgWT = avgWT / numProcess;
-    avgTAT = avgTAT / numProcess;
-
-    printf("\n\n");
-    printf("Average Waiting Time : %.2f\n", avgWT);
-    printf("Average Turn Around Time : %.2f\n", avgTAT);
+    printf("\n");
+    printf("Average Waiting Time : %.2f\n", avgWT / numProcess);
+    printf("Average Turn Around Time : %.2f\n", avgTAT / numProcess);
 
     return 0;
+}
+
+void sortProcessByArrivalTime(PROCESS process[], int n)
+{
+    int i, j;
+    PROCESS temp;
+    for (i = 0; i < n; i++)
+    {
+        for (j = i + 1; j < n; j++)
+        {
+            if (process[i].AT > process[j].AT)
+            {
+                temp = process[i];
+                process[i] = process[j];
+                process[j] = temp;
+            }
+        }
+    }
 }
