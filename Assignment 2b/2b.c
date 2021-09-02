@@ -2,7 +2,7 @@
 
 typedef struct
 {
-    int PNO, AT, BT, WT, TAT, RT;
+    int PID, AT, BT, WT, TAT, RT;
 } PROCESS;
 
 void sortProcessByArrivalTime(PROCESS[], int);
@@ -24,7 +24,7 @@ int main()
         scanf("%d", &process[i].AT);
         printf("Burst Time : ");
         scanf("%d", &process[i].BT);
-        process[i].PNO = i + 1;
+        process[i].PID = i + 1;
         process[i].RT = process[i].BT;
         printf("\n");
     }
@@ -46,7 +46,7 @@ int main()
         if (process[i].RT <= TQ && process[i].RT > 0)
         {
             time = time + process[i].RT;
-            printf(" - P%d - %d", process[i].PNO, time);
+            printf(" - P%d - %d", process[i].PID, time);
             process[i].RT = 0;
             flag = 1;
         }
@@ -54,7 +54,7 @@ int main()
         {
             process[i].RT = process[i].RT - TQ;
             time = time + TQ;
-            printf(" - P%d - %d", process[i].PNO, time);
+            printf(" - P%d - %d", process[i].PID, time);
         }
         if (process[i].RT == 0 && flag == 1)
         {
@@ -86,7 +86,7 @@ int main()
 
     for (i = 0; i < numProcess; i++)
     {
-        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PNO, process[i].AT, process[i].BT, process[i].TAT, process[i].WT);
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PID, process[i].AT, process[i].BT, process[i].TAT, process[i].WT);
     }
 
     printf("\n");
