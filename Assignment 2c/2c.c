@@ -1,75 +1,149 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define TRUE 1
-#define FALSE 0
-
 typedef struct process
 {
-    int arrivalTime;
-    int burstTime;
-    int isCompleted;
-    int turnAroundTime;
-    int waitingTime;
-    int completionTime;
-    int priority;
-    int processId;
+    int PID, priority, AT, BT, CT, TAT, WT, isDone;
 } PROCESS;
 
-typedef struct processes
+typedef struct
 {
-    int noOfProcesses;
-    PROCESS *list;
+    int processNumber;
+    PROCESS *processList;
 } PROCESSES;
 
 typedef struct node
 {
-    PROCESS *data;
     int priority;
+    PROCESS *data;
     struct node *next;
 } NODE;
 
-typedef struct priorityQueue
+typedef struct
 {
-    NODE *front, *rear;
+    NODE *FRONT, *REAR;
 } PRIORITYQUEUE;
+
+int isEmpty(PRIORITYQUEUE *);
+int sortByAT(PROCESSES *);
+int arrangeByPriority(PRIORITYQUEUE *);
+int enqueue(PRIORITYQUEUE *, PROCESS *, int);
+PROCESS *dequeue(PRIORITYQUEUE *);
+int reset(PROCESSES *);
+int displayAvg(PROCESSES *);
+int prioritySchedulingNonPreemtive(PROCESSES *, PRIORITYQUEUE *);
+int prioritySchedulingPreemptive(PROCESSES *, PRIORITYQUEUE *);
+
+int main()
+{
+    PROCESSES *p;
+    PRIORITYQUEUE pq;
+    pq.FRONT = NULL;
+    pq.REAR = NULL;
+
+    int i, processNumber;
+
+    printf("Enter the number of processes: ");
+    scanf("%d", &processNumber);
+
+    p = (PROCESSES *)malloc(sizeof(PROCESSES));
+    p->processList = (PROCESS *)malloc(sizeof(PROCESS) * processNumber);
+
+    if (p == NULL || p->processList == NULL)
+    {
+        return -1;
+    }
+
+    p->processNumber = processNumber;
+
+    for (i = 0; i < p->processNumber; i++)
+    {
+        printf("For Process P%d\n", i + 1);
+        printf("Priority : ");
+        scanf("%d", &p->processList[i].priority);
+        printf("Arrival Time : ");
+        scanf("%d", &p->processList[i].AT);
+        printf("Burst Time : ");
+        scanf("%d", &p->processList[i].BT);
+        p->processList[i].PID = i;
+        p->processList[i].isDone = 0;
+        p->processList[i].CT = 0;
+        p->processList[i].TAT = 0;
+        p->processList[i].WT = 0;
+
+        printf("\n");
+    }
+
+    sortByAT(p);
+
+    printf("\nPriority Scheduling (Non Preemtive)\n\n");
+    prioritySchedulingNonPreemtive(p, &pq);
+
+    printf("\nPriority Scheduling (Preemtive)\n\n");
+    prioritySchedulingPreemptive(p, &pq);
+
+    return 0;
+}
 
 int isEmpty(PRIORITYQUEUE *pq)
 {
-    return (pq->front == NULL || pq->rear == NULL);
+    return (pq->FRONT == NULL || pq->REAR == NULL);
 }
 
-int rearrange(PRIORITYQUEUE *pq)
+int sortByAT(PROCESSES *p)
 {
-    NODE *temp, *highestPriority, *prevNode;
+    int i, j;
+    PROCESS temp;
+    for (i = 0; i < p->processNumber; i++)
+    {
+        for (j = 1; j < p->processNumber - i; j++)
+        {
+            if (p->processList[j - 1].AT > p->processList[j].AT)
+            {
+                temp = p->processList[j - 1];
+                p->processList[j] = p->processList[j - 1];
+                p->processList[j - 1] = temp;
+            }
+        }
+    }
+    return 0;
+}
+
+int arrangeByPriority(PRIORITYQUEUE *pq)
+{
+    NODE *temp, *highestPriority, *previousNode;
 
     temp = (NODE *)malloc(sizeof(NODE));
     highestPriority = (NODE *)malloc(sizeof(NODE));
-    prevNode = (NODE *)malloc(sizeof(NODE));
 
-    temp = pq->front;
-    highestPriority = pq->front;
-    prevNode = NULL;
+    if (temp == NULL || highestPriority == NULL)
+    {
+        return -1;
+    }
+
+    temp = pq->FRONT;
+    highestPriority = pq->FRONT;
+    previousNode = NULL;
 
     while (temp != NULL)
     {
         if (temp->next != NULL && temp->next->priority > highestPriority->priority)
         {
-            prevNode = temp;
+            previousNode = temp;
             highestPriority = temp->next;
         }
         temp = temp->next;
     }
 
-    if (prevNode != NULL)
+    if (previousNode != NULL)
     {
         if (highestPriority->next == NULL)
         {
-            pq->rear = prevNode;
+            pq->REAR = previousNode;
         }
-        prevNode->next = highestPriority->next;
-        highestPriority->next = pq->front;
-        pq->front = highestPriority;
+        previousNode->next = highestPriority->next;
+        highestPriority->next = pq->FRONT;
+        pq->FRONT = highestPriority;
     }
 
     return 0;
@@ -79,6 +153,10 @@ int enqueue(PRIORITYQUEUE *pq, PROCESS *data, int priority)
 {
     NODE *temp;
     temp = (NODE *)malloc(sizeof(NODE));
+    if (temp == NULL)
+    {
+        return -1;
+    }
 
     temp->data = data;
     temp->priority = priority;
@@ -86,14 +164,14 @@ int enqueue(PRIORITYQUEUE *pq, PROCESS *data, int priority)
 
     if (isEmpty(pq))
     {
-        pq->front = temp;
-        pq->rear = temp;
+        pq->FRONT = temp;
+        pq->REAR = temp;
     }
     else
     {
-        pq->rear->next = temp;
-        pq->rear = temp;
-        rearrange(pq);
+        pq->REAR->next = temp;
+        pq->REAR = temp;
+        arrangeByPriority(pq);
     }
 
     return 0;
@@ -101,69 +179,51 @@ int enqueue(PRIORITYQUEUE *pq, PROCESS *data, int priority)
 
 PROCESS *dequeue(PRIORITYQUEUE *pq)
 {
-    PROCESS *delRes;
-    delRes = (PROCESS *)malloc(sizeof(PROCESS));
+    PROCESS *deletedProcess;
+    deletedProcess = (PROCESS *)malloc(sizeof(PROCESS));
     NODE *temp;
     temp = (NODE *)malloc(sizeof(NODE));
 
-    temp = pq->front;
-    pq->front = pq->front->next;
-    delRes = temp->data;
+    temp = pq->FRONT;
+    pq->FRONT = pq->FRONT->next;
+    deletedProcess = temp->data;
     free(temp);
-    rearrange(pq);
+    arrangeByPriority(pq);
 
-    return delRes;
+    return deletedProcess;
 }
 
 int reset(PROCESSES *p)
 {
     int i;
-    for (i = 0; i < p->noOfProcesses; i++)
+    for (i = 0; i < p->processNumber; i++)
     {
-        p->list[i].completionTime = 0;
-        p->list[i].isCompleted = FALSE;
-        p->list[i].turnAroundTime = 0;
-        p->list[i].waitingTime = 0;
+        p->processList[i].CT = 0;
+        p->processList[i].isDone = 0;
+        p->processList[i].TAT = 0;
+        p->processList[i].WT = 0;
     }
     return 0;
 }
 
-void swap(PROCESS *a, PROCESS *b)
-{
-    PROCESS temp;
-    temp = *a;
-    *a = *b;
-    *b = temp;
-}
-
-void basicSort(PROCESSES *p)
-{
-    int i, j;
-    for (i = 0; i < p->noOfProcesses; i++)
-    {
-        for (j = 1; j < p->noOfProcesses - i; j++)
-        {
-            if (p->list[j - 1].arrivalTime > p->list[j].arrivalTime)
-            {
-                swap(&p->list[j - 1], &p->list[j]);
-            }
-        }
-    }
-}
-
 int displayAvg(PROCESSES *p)
 {
-    int m;
-    float tat = 0, wt = 0;
-    for (m = 0; m < p->noOfProcesses; m++)
+    int i;
+    float avgTAT = 0.0, avgWT = 0.0;
+
+    printf("\n\n");
+    printf("Process\t  Arrival Time\tBurst Time\tTurn Around Time\tWaiting Time\n");
+
+    for (i = 0; i < p->processNumber; i++)
     {
-        wt += p->list[m].waitingTime;
-        tat += p->list[m].turnAroundTime;
+        avgWT += p->processList[i].WT;
+        avgTAT += p->processList[i].TAT;
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", p->processList[i].PID, p->processList[i].AT, p->processList[i].BT, p->processList[i].TAT, p->processList[i].WT);
     }
 
-    printf("\n");
-    printf("Average Waiting time : %.2f\n", wt / p->noOfProcesses);
-    printf("Average Turn around time : %.2f\n", tat / p->noOfProcesses);
+    printf("\n\n");
+    printf("Average Waiting time : %.2f\n", avgWT / p->processNumber);
+    printf("Average Turn around time : %.2f\n", avgTAT / p->processNumber);
 
     return 0;
 }
@@ -171,53 +231,51 @@ int displayAvg(PROCESSES *p)
 int prioritySchedulingNonPreemtive(PROCESSES *p, PRIORITYQUEUE *pq)
 {
     reset(p);
-    int *tempBurstTime;
-    int i, curTime, check, target;
-    PROCESS *curProcess;
-    curProcess = (PROCESS *)malloc(sizeof(PROCESS));
-    tempBurstTime = (int *)malloc(sizeof(int) * p->noOfProcesses);
+    int *tempBT;
+    int i, time = 0, check, target = 0;
+    PROCESS *currentProcess;
 
-    for (i = 0; i < p->noOfProcesses; i++)
+    currentProcess = (PROCESS *)malloc(sizeof(PROCESS));
+    tempBT = (int *)malloc(sizeof(int) * p->processNumber);
+
+    for (i = 0; i < p->processNumber; i++)
     {
-        tempBurstTime[i] = p->list[i].burstTime;
+        tempBT[i] = p->processList[i].BT;
     }
 
-    curTime = 0;
-    target = 0;
-
     printf("Gantt Chart : ");
-    while (target < p->noOfProcesses)
+    while (target < p->processNumber)
     {
-        for (i = 0; i < p->noOfProcesses; i++)
+        for (i = 0; i < p->processNumber; i++)
         {
-            if (p->list[i].arrivalTime <= curTime && p->list[i].isCompleted == FALSE)
+            if (p->processList[i].AT <= time && p->processList[i].isDone == 0)
             {
-                enqueue(pq, &p->list[i], p->list[i].priority);
+                enqueue(pq, &p->processList[i], p->processList[i].priority);
             }
         }
 
         if (!isEmpty(pq))
         {
-            curProcess = dequeue(pq);
-            printf("%c%d ", 'p', curProcess->processId + 1);
-            while (tempBurstTime[curProcess->processId] != 0)
+            currentProcess = dequeue(pq);
+            printf("P%d ", currentProcess->PID + 1);
+            while (tempBT[currentProcess->PID] != 0)
             {
-                tempBurstTime[curProcess->processId]--;
-                curTime++;
+                tempBT[currentProcess->PID]--;
+                time++;
             }
 
-            if (tempBurstTime[curProcess->processId] == 0)
+            if (tempBT[currentProcess->PID] == 0)
             {
                 target++;
-                curProcess->isCompleted = TRUE;
-                curProcess->completionTime = curTime;
-                curProcess->turnAroundTime = curProcess->completionTime - curProcess->arrivalTime;
-                curProcess->waitingTime = curProcess->turnAroundTime - curProcess->burstTime;
+                currentProcess->isDone = 1;
+                currentProcess->CT = time;
+                currentProcess->TAT = currentProcess->CT - currentProcess->AT;
+                currentProcess->WT = currentProcess->TAT - currentProcess->BT;
             }
         }
         else
         {
-            curTime++;
+            time++;
         }
 
         while (!isEmpty(pq))
@@ -227,7 +285,7 @@ int prioritySchedulingNonPreemtive(PROCESSES *p, PRIORITYQUEUE *pq)
     }
 
     displayAvg(p);
-    free(tempBurstTime);
+    free(tempBT);
 
     return 0;
 }
@@ -235,54 +293,54 @@ int prioritySchedulingNonPreemtive(PROCESSES *p, PRIORITYQUEUE *pq)
 int prioritySchedulingPreemptive(PROCESSES *p, PRIORITYQUEUE *pq)
 {
     reset(p);
-    int *tempBurstTime;
-    int i, curTime, target, prev;
-    PROCESS *curProcess;
-    curProcess = (PROCESS *)malloc(sizeof(PROCESS));
-    tempBurstTime = (int *)malloc(sizeof(int) * p->noOfProcesses);
+    int *tempBT;
+    int i, time, target, previous;
+    PROCESS *currentProcess;
+    currentProcess = (PROCESS *)malloc(sizeof(PROCESS));
+    tempBT = (int *)malloc(sizeof(int) * p->processNumber);
 
-    for (i = 0; i < p->noOfProcesses; i++)
+    for (i = 0; i < p->processNumber; i++)
     {
-        tempBurstTime[i] = p->list[i].burstTime;
+        tempBT[i] = p->processList[i].BT;
     }
 
-    curTime = 0;
+    time = 0;
     target = 0;
-    prev = -1;
+    previous = -1;
 
     printf("Gantt Chart : ");
-    while (target < p->noOfProcesses)
+    while (target < p->processNumber)
     {
-        for (i = 0; i < p->noOfProcesses; i++)
+        for (i = 0; i < p->processNumber; i++)
         {
-            if (p->list[i].arrivalTime <= curTime && p->list[i].isCompleted == FALSE)
+            if (p->processList[i].AT <= time && p->processList[i].isDone == 0)
             {
-                enqueue(pq, &p->list[i], p->list[i].priority);
+                enqueue(pq, &p->processList[i], p->processList[i].priority);
             }
         }
 
         if (!isEmpty(pq))
         {
-            curProcess = dequeue(pq);
-            if (prev != curProcess->processId)
+            currentProcess = dequeue(pq);
+            if (previous != currentProcess->PID)
             {
-                printf("%c%d ", 'p', curProcess->processId + 1);
+                printf("P%d ", currentProcess->PID + 1);
             }
-            tempBurstTime[curProcess->processId]--;
-            curTime++;
-            prev = curProcess->processId;
-            if (tempBurstTime[curProcess->processId] == 0)
+            tempBT[currentProcess->PID]--;
+            time++;
+            previous = currentProcess->PID;
+            if (tempBT[currentProcess->PID] == 0)
             {
-                p->list[curProcess->processId].completionTime = curTime;
-                p->list[curProcess->processId].turnAroundTime = p->list[curProcess->processId].completionTime - p->list[curProcess->processId].arrivalTime;
-                p->list[curProcess->processId].waitingTime = p->list[curProcess->processId].turnAroundTime - p->list[curProcess->processId].burstTime;
-                p->list[curProcess->processId].isCompleted = TRUE;
+                p->processList[currentProcess->PID].CT = time;
+                p->processList[currentProcess->PID].TAT = p->processList[currentProcess->PID].CT - p->processList[currentProcess->PID].AT;
+                p->processList[currentProcess->PID].WT = p->processList[currentProcess->PID].TAT - p->processList[currentProcess->PID].BT;
+                p->processList[currentProcess->PID].isDone = 1;
                 target++;
             }
         }
         else
         {
-            curTime++;
+            time++;
         }
 
         while (!isEmpty(pq))
@@ -292,51 +350,7 @@ int prioritySchedulingPreemptive(PROCESSES *p, PRIORITYQUEUE *pq)
     }
 
     displayAvg(p);
-    free(tempBurstTime);
-
-    return 0;
-}
-
-int main()
-{
-    PROCESSES *p;
-    PRIORITYQUEUE pq;
-    pq.front = NULL;
-    pq.rear = NULL;
-
-    int i, lim, at, bt, pr;
-
-    printf("Enter the no of processes: ");
-    scanf("%d", &lim);
-
-    p->list = (PROCESS *)malloc(sizeof(PROCESS) * lim);
-    p->noOfProcesses = lim;
-
-    for (i = 0; i < p->noOfProcesses; i++)
-    {
-        printf("Enter the Arrival and Burst time of p%d ", i + 1);
-        scanf("%d %d", &at, &bt);
-        printf("Enter the Priority of p%d ", i + 1);
-        scanf("%d", &pr);
-        p->list[i].arrivalTime = at;
-        p->list[i].burstTime = bt;
-        p->list[i].isCompleted = FALSE;
-        p->list[i].completionTime = 0;
-        p->list[i].turnAroundTime = 0;
-        p->list[i].waitingTime = 0;
-        p->list[i].processId = i;
-        p->list[i].priority = pr;
-    }
-
-    basicSort(p);
-
-    printf("\n");
-    printf("Priority Scheduling Non Preemtive\n");
-    prioritySchedulingNonPreemtive(p, &pq);
-    printf("\n");
-    printf("Priority Scheduling Preemtive\n");
-    prioritySchedulingPreemptive(p, &pq);
-    printf("\n");
+    free(tempBT);
 
     return 0;
 }

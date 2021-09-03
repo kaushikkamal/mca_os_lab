@@ -3,7 +3,7 @@
 
 typedef struct
 {
-    int PID, AT, BT, CT, TAT, WT, isCompleted;
+    int PID, AT, BT, CT, TAT, WT, isDone;
 } PROCESS;
 
 typedef struct
@@ -12,7 +12,7 @@ typedef struct
     PROCESS *processList;
 } PROCESSES;
 
-void sortByAT(PROCESSES *);
+int sortByAT(PROCESSES *);
 
 int SRJF(PROCESSES *);
 
@@ -21,7 +21,7 @@ int main()
     int i, processNumber, res;
     PROCESSES *p;
 
-    printf("Enter the no of processes: ");
+    printf("Enter the number of processes: ");
     scanf("%d", &processNumber);
 
     p->processList = (PROCESS *)malloc(sizeof(PROCESS) * processNumber);
@@ -40,7 +40,7 @@ int main()
         printf("Burst Time : ");
         scanf("%d", &p->processList[i].BT);
         p->processList[i].PID = i + 1;
-        p->processList[i].isCompleted = 0;
+        p->processList[i].isDone = 0;
         p->processList[i].CT = 0;
         p->processList[i].TAT = 0;
         p->processList[i].WT = 0;
@@ -61,7 +61,7 @@ int main()
     return 0;
 }
 
-void sortByAT(PROCESSES *p)
+int sortByAT(PROCESSES *p)
 {
     int i, j;
     PROCESS temp;
@@ -77,9 +77,10 @@ void sortByAT(PROCESSES *p)
             }
         }
     }
+    return 0;
 }
 
-int shortestRemainingJobFirst(PROCESSES *p)
+int SRJF(PROCESSES *p)
 {
     int *tempBT;
     int i, target = 0, index, currentSmallestBT, curTime = 0, prev;
@@ -103,7 +104,7 @@ int shortestRemainingJobFirst(PROCESSES *p)
         currentSmallestBT = __INT_MAX__;
         for (i = 0; i < p->processNumber; i++)
         {
-            if (p->processList[i].AT <= curTime && p->processList[i].isCompleted == 0)
+            if (p->processList[i].AT <= curTime && p->processList[i].isDone == 0)
             {
                 if (tempBT[i] < currentSmallestBT)
                 {
@@ -126,7 +127,7 @@ int shortestRemainingJobFirst(PROCESSES *p)
                 p->processList[index].CT = curTime;
                 p->processList[index].TAT = p->processList[index].CT - p->processList[index].AT;
                 p->processList[index].WT = p->processList[index].TAT - p->processList[index].BT;
-                p->processList[index].isCompleted = 1;
+                p->processList[index].isDone = 1;
                 target++;
             }
         }
@@ -136,10 +137,15 @@ int shortestRemainingJobFirst(PROCESSES *p)
         }
     }
 
+    printf("\n\n");
+
+    printf("Process\t  Arrival Time\tBurst Time\tTurn Around Time\tWaiting Time\n");
+
     for (i = 0; i < p->processNumber; i++)
     {
         avgWT += p->processList[i].WT;
         avgTAT += p->processList[i].TAT;
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", p->processList[i].PID, p->processList[i].AT, p->processList[i].BT, p->processList[i].TAT, p->processList[i].WT);
     }
 
     printf("\n");

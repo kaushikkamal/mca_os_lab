@@ -1,76 +1,129 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-typedef struct
+typedef struct process
 {
     int PID, AT, BT, WT, TAT, RT;
 } PROCESS;
 
-void sortProcessByArrivalTime(PROCESS[], int);
+typedef struct processes
+{
+    int processNumber;
+    PROCESS *processList;
+} PROCESSES;
+
+int sortByAT(PROCESSES *);
+
+int RR(PROCESSES *, int);
 
 int main()
 {
-    int i, j, numProcess, time, remain, flag = 0, TQ;
-    float avgWT = 0.0, avgTAT = 0.0;
-    PROCESS process[100];
+    int i, processNumber, res, TQ;
+    PROCESSES *p;
 
-    printf("Enter Number Of Processes : ");
-    scanf("%d", &numProcess);
-    remain = numProcess;
+    printf("Enter the number of processes: ");
+    scanf("%d", &processNumber);
 
-    for (i = 0; i < numProcess; i++)
+    p->processList = (PROCESS *)malloc(processNumber * sizeof(PROCESS));
+
+    if (p->processList == NULL)
+    {
+        printf("Error");
+        return -1;
+    }
+
+    p->processNumber = processNumber;
+
+    for (i = 0; i < p->processNumber; i++)
     {
         printf("For Process P%d\n", i + 1);
         printf("Arrival Time : ");
-        scanf("%d", &process[i].AT);
+        scanf("%d", &p->processList[i].AT);
         printf("Burst Time : ");
-        scanf("%d", &process[i].BT);
-        process[i].PID = i + 1;
-        process[i].RT = process[i].BT;
+        scanf("%d", &p->processList[i].BT);
+        p->processList[i].PID = i + 1;
+        p->processList[i].RT = p->processList[i].BT;
         printf("\n");
     }
 
-    sortProcessByArrivalTime(process, numProcess);
+    sortByAT(p);
 
     printf("Enter Time Quantum : ");
     scanf("%d", &TQ);
     printf("\n");
 
+    printf("Round Robin\n");
+
+    res = RR(p, TQ);
+    if (res != 0)
+    {
+        printf("Unsucessful!\n");
+    }
+
+    return 0;
+}
+
+int sortByAT(PROCESSES *p)
+{
+    int i, j;
+    PROCESS temp;
+
+    for (i = 0; i < p->processNumber; i++)
+    {
+        for (j = 1; j < p->processNumber - i; j++)
+        {
+            if (p->processList[j - 1].AT > p->processList[j].AT)
+            {
+                temp = p->processList[j - 1];
+                p->processList[j] = p->processList[j - 1];
+                p->processList[j - 1] = temp;
+            }
+        }
+    }
+    return 0;
+}
+
+int RR(PROCESSES *p, int TQ)
+{
+    int i, j, time, remain, flag = 0;
+    float avgWT = 0.0, avgTAT = 0.0;
+
     time = 0;
     i = 0;
+    remain = p->processNumber;
 
     printf("Gantt Chart\n");
-    printf("0");
 
     while (remain)
     {
-        if (process[i].RT <= TQ && process[i].RT > 0)
+        if (p->processList[i].RT <= TQ && p->processList[i].RT > 0)
         {
-            time = time + process[i].RT;
-            printf(" - P%d - %d", process[i].PID, time);
-            process[i].RT = 0;
+            time = time + p->processList[i].RT;
+            printf(" P%d ", p->processList[i].PID);
+            p->processList[i].RT = 0;
             flag = 1;
         }
-        else if (process[i].RT > 0)
+        else if (p->processList[i].RT > 0)
         {
-            process[i].RT = process[i].RT - TQ;
+            p->processList[i].RT = p->processList[i].RT - TQ;
             time = time + TQ;
-            printf(" - P%d - %d", process[i].PID, time);
+            printf(" P%d ", p->processList[i].PID);
         }
-        if (process[i].RT == 0 && flag == 1)
+        if (p->processList[i].RT == 0 && flag == 1)
         {
             remain--;
-            process[i].TAT = time - process[i].AT;
-            process[i].WT = time - process[i].AT - process[i].BT;
-            avgWT = avgWT + time - process[i].AT - process[i].BT;
-            avgTAT = avgTAT + time - process[i].AT;
+            p->processList[i].TAT = time - p->processList[i].AT;
+            p->processList[i].WT = time - p->processList[i].AT - p->processList[i].BT;
+            avgWT = avgWT + time - p->processList[i].AT - p->processList[i].BT;
+            avgTAT = avgTAT + time - p->processList[i].AT;
             flag = 0;
         }
 
-        if (i == numProcess - 1)
+        if (i == p->processNumber - 1)
         {
             i = 0;
         }
-        else if (process[i + 1].AT <= time)
+        else if (p->processList[i + 1].AT <= time)
         {
             i++;
         }
@@ -84,32 +137,14 @@ int main()
 
     printf("Process\t  Arrival Time\tBurst Time\tTurn Around Time\tWaiting Time\n");
 
-    for (i = 0; i < numProcess; i++)
+    for (i = 0; i < p->processNumber; i++)
     {
-        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PID, process[i].AT, process[i].BT, process[i].TAT, process[i].WT);
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", p->processList[i].PID, p->processList[i].AT, p->processList[i].BT, p->processList[i].TAT, p->processList[i].WT);
     }
 
     printf("\n");
-    printf("Average Waiting Time : %.2f\n", avgWT / numProcess);
-    printf("Average Turn Around Time : %.2f\n", avgTAT / numProcess);
+    printf("Average Waiting Time : %.2f\n", avgWT / p->processNumber);
+    printf("Average Turn Around Time : %.2f\n", avgTAT / p->processNumber);
 
     return 0;
-}
-
-void sortProcessByArrivalTime(PROCESS process[], int n)
-{
-    int i, j;
-    PROCESS temp;
-    for (i = 0; i < n; i++)
-    {
-        for (j = i + 1; j < n; j++)
-        {
-            if (process[i].AT > process[j].AT)
-            {
-                temp = process[i];
-                process[i] = process[j];
-                process[j] = temp;
-            }
-        }
-    }
 }
