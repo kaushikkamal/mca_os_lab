@@ -8,6 +8,7 @@ typedef struct
 int main()
 {
     int i, j, numProcess, min, time = 0, remain;
+    float avgWT = 0.0, avgTAT = 0.0;
     PROCESS process[100];
 
     printf("Enter Number Of Processes : ");
@@ -56,8 +57,19 @@ int main()
 
     for (i = 0; i < numProcess; i++)
     {
-        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PID, process[i].AT, process[i].BT, process[i].TAT, process[i].TAT - process[i].BT);
+        process[i].WT = process[i].TAT - process[i].BT;
+        printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\n", process[i].PID, process[i].AT, process[i].BT, process[i].TAT, process[i].WT);
     }
+
+    for (i = 0; i < numProcess; i++)
+    {
+        avgWT += process[i].WT;
+        avgTAT += process[i].TAT;
+    }
+
+    printf("\n");
+    printf("Average Waiting Time : %.2f\n", avgWT / numProcess);
+    printf("Average Turn Around Time : %.2f\n", avgTAT / numProcess);
 
     return 0;
 }

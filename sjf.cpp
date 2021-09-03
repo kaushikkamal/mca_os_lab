@@ -1,141 +1,151 @@
-#include <iostream>
-#include <algorithm>
-#include <iomanip>
-#include <string.h>
-using namespace std;
-
-struct process
-{
-    int pid;
-    int arrival_time;
-    int burst_time;
-    int start_time;
-    int completion_time;
-    int turnaround_time;
-    int waiting_time;
-    int response_time;
-};
-
+#include <stdio.h>
+#include <conio.h>
+int initialize();
+int p[10], a[10], b[10], w[10], ta[10], t1, gantt[20][2];
 int main()
 {
-
-    int n;
-    struct process p[100];
-    float avg_turnaround_time;
-    float avg_waiting_time;
-    float avg_response_time;
-    float cpu_utilisation;
-    int total_turnaround_time = 0;
-    int total_waiting_time = 0;
-    int total_response_time = 0;
-    int total_idle_time = 0;
-    float throughput;
-    int is_completed[100];
-    memset(is_completed, 0, sizeof(is_completed));
-
-    cout << setprecision(2) << fixed;
-
-    cout << "Enter the number of processes: ";
-    cin >> n;
-
-    for (int i = 0; i < n; i++)
+    int i, j, n, k, t, e = 0, m = 0;
+    float aw, at, sum1;
+    
+    printf("\n\nP  A  B  W  TAT\n\n");
+    n = initialize();
+    for (i = 0; i < n; i++)
     {
-        cout << "Enter arrival time of process " << i + 1 << ": ";
-        cin >> p[i].arrival_time;
-        cout << "Enter burst time of process " << i + 1 << ": ";
-        cin >> p[i].burst_time;
-        p[i].pid = i + 1;
-        cout << endl;
-    }
-
-    int current_time = 0;
-    int completed = 0;
-    int prev = 0;
-
-    while (completed != n)
-    {
-        int idx = -1;
-        int mn = 10000000;
-        for (int i = 0; i < n; i++)
+        for (j = i + 1; j < n; j++)
         {
-            if (p[i].arrival_time <= current_time && is_completed[i] == 0)
+            if ((a[i] > a[j]) || ((a[i] == a[j]) && (b[i] > b[j])))
             {
-                if (p[i].burst_time < mn)
-                {
-                    mn = p[i].burst_time;
-                    idx = i;
-                }
-                if (p[i].burst_time == mn)
-                {
-                    if (p[i].arrival_time < p[idx].arrival_time)
-                    {
-                        mn = p[i].burst_time;
-                        idx = i;
-                    }
-                }
+                t = a[i];
+                a[i] = a[j];
+                a[j] = t;
+
+                t = b[i];
+                b[i] = b[j];
+                b[j] = t;
+
+                t = p[i];
+                p[i] = p[j];
+                p[j] = t;
             }
         }
-        if (idx != -1)
+    }
+    k = a[0] + b[0];
+    for (i = 1; i < n; i++)
+    {
+        for (j = i + 1; j < n; j++)
         {
-            p[idx].start_time = current_time;
-            p[idx].completion_time = p[idx].start_time + p[idx].burst_time;
-            p[idx].turnaround_time = p[idx].completion_time - p[idx].arrival_time;
-            p[idx].waiting_time = p[idx].turnaround_time - p[idx].burst_time;
-            p[idx].response_time = p[idx].start_time - p[idx].arrival_time;
+            if (b[i] > b[j] && k >= a[j])
+            {
+                m = 1;
 
-            total_turnaround_time += p[idx].turnaround_time;
-            total_waiting_time += p[idx].waiting_time;
-            total_response_time += p[idx].response_time;
-            total_idle_time += p[idx].start_time - prev;
+                t = b[i];
+                b[i] = b[j];
+                b[j] = t;
 
-            is_completed[idx] = 1;
-            completed++;
-            current_time = p[idx].completion_time;
-            prev = current_time;
+                t = a[i];
+                a[i] = a[j];
+                a[j] = t;
+
+                t = p[i];
+                p[i] = p[j];
+                p[j] = t;
+            }
         }
+        if (m == 0)
+            k = k + b[i];
         else
+            k++;
+        m = 0;
+    }
+
+    t1 = 0;
+    for (i = 0; i < n; i++)
+    {
+        if (t1 - a[i] < 0)
         {
-            current_time++;
+            gantt[e][0] = -1;
+            gantt[e++][1] = t1;
+            t1 += a[i] - t1;
         }
+        if (i == 0)
+            w[i] = 0;
+        else
+            w[i] = t1 - a[i];
+        gantt[e][0] = a[i];
+        gantt[e++][1] = t1;
+        t1 += b[i];
     }
-
-    int min_arrival_time = 10000000;
-    int max_completion_time = -1;
-    for (int i = 0; i < n; i++)
+    gantt[e][1] = t1;
+    for (i = 0; i < n; i++)
     {
-        min_arrival_time = min(min_arrival_time, p[i].arrival_time);
-        max_completion_time = max(max_completion_time, p[i].completion_time);
+        ta[i] = b[i] + w[i];
     }
-
-    avg_turnaround_time = (float)total_turnaround_time / n;
-    avg_waiting_time = (float)total_waiting_time / n;
-    avg_response_time = (float)total_response_time / n;
-    cpu_utilisation = ((max_completion_time - total_idle_time) / (float)max_completion_time) * 100;
-    throughput = float(n) / (max_completion_time - min_arrival_time);
-
-    cout << endl
-         << endl;
-
-    cout << "#P\t"
-         << "AT\t"
-         << "BT\t"
-         << "ST\t"
-         << "CT\t"
-         << "TAT\t"
-         << "WT\t"
-         << "RT\t"
-         << "\n"
-         << endl;
-
-    for (int i = 0; i < n; i++)
+    for (i = 0; i < n; i++)
     {
-        cout << p[i].pid << "\t" << p[i].arrival_time << "\t" << p[i].burst_time << "\t" << p[i].start_time << "\t" << p[i].completion_time << "\t" << p[i].turnaround_time << "\t" << p[i].waiting_time << "\t" << p[i].response_time << "\t"
-             << "\n"
-             << endl;
+        printf("%d  %d  %d  %d  %d\n", p[i], a[i], b[i], w[i], ta[i]);
     }
-    cout << "Average Turnaround Time = " << avg_turnaround_time << endl;
-    cout << "Average Waiting Time = " << avg_waiting_time << endl;
-    cout << "Average Response Time = " << avg_response_time << endl;
-    cout << "CPU Utilization = " << cpu_utilisation << "%" << endl;
-    cout << "Throughput = " << throughput << " process/unit time" << endl;
+    printf("\nAverage waiting time is:");
+    sum1 = 0.0;
+    for (i = 0; i < n; i++)
+    {
+        sum1 += w[i];
+    }
+    aw = sum1 / n;
+    printf("%.2f", aw);
+
+    printf("\nAverage turn around time is:");
+    sum1 = 0.0;
+    for (i = 0; i < n; i++)
+    {
+        sum1 += ta[i];
+    }
+    at = sum1 / n;
+    printf("%.2f", at);
+    printf("\n\nThe Gantt chart is:\n\n");
+    /*for(i=0;i<n;i++)
+  {
+   printf("|%d",p[i]);
+    if(i==n-1)
+     printf("|");
+  } */
+    printf(" ");
+    for (i = 0; i < e; i++)
+    {
+
+        printf("--- ");
+    }
+    printf("\n");
+    for (i = 0; i < e; i++)
+    {
+        printf(gantt[i][0] == -1 ? "|   " : "| %d ", gantt[i][0]);
+    }
+
+    printf("|\n ");
+    for (i = 0; i < e; i++)
+    {
+        printf("--- ");
+    }
+
+    printf("\n");
+    for (i = 0; i <= e; i++)
+    {
+        printf("%d   ", gantt[i][1]);
+    }
+
+    getch();
+}
+
+int initialize()
+{
+    int n, n1, n2, n3, i = 0;
+    FILE *fp;
+    fp = fopen("sjf.txt", "r");
+    while (fscanf(fp, "%d%d%d", &n1, &n2, &n3) != EOF)
+    {
+        p[i] = n1;
+        a[i] = n2;
+        b[i] = n3;
+        i++;
+    }
+    return i;
 }
