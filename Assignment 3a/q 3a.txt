@@ -1,0 +1,7 @@
+/* You need to put proper explanatory comment in your program to demonstrate the purpose
+and why you have used the C statements and system calls */
+
+Write a C program by using signal() system call to handle the reception of SIGINT signal by executing a particular (user) function, which function is responsible for creating a child process by using fork( ) system call and then you have to display the PROCESS ID and PARENT PROCESS ID from the parent process as well as from the child process.
+
+Hints:
+* For generating, SIGINT (SIGINT is a keyboard interrupt signal) signal, you have to press Ctrl+C. So, by default pressing Ctrl+C in a running program leads to the termination of the running process. But, your program should provide a way to handle the keyboard interrupt through signal() system.

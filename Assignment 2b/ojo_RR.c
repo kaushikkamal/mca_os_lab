@@ -87,8 +87,6 @@ int RR(PROCESSES *p, int TQ)
 
     for (i = 0; i < p->process_number; i++)
     {
-        avgWT += p->process_list[i].waiting_time;
-        avgTAT += p->process_list[i].turn_around_time;
         printf("P%d\t%d\t%d\t%d\t%d\n", p->process_list[i].process_id, p->process_list[i].arrival_time, p->process_list[i].burst_time, p->process_list[i].turn_around_time, p->process_list[i].waiting_time);
     }
 

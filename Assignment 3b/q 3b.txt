@@ -1,0 +1,14 @@
+/* You need to put proper explanatory comment in your program to demonstrate the purpose
+and why you have used the C statements and system calls */
+
+Write a C program which will take the Process ID and signal ID as input to demonstrate
+the use of kill( ) system call.
+
+Hints:
+ 
+* For demonstrating so, you modify the assignment 3(a) to handle different signals as many possible where handler of each signal prints signal number. Run the modified assignment 3(a).
+
+* Again from another terminal, run the assignment 3(b) which will take the Process ID of the modified assignment 3(a) and any valid signal value as input.
+
+* Your signal handler function of the assignment 3(b) should be able to display the
+signal ID of the generated signal.

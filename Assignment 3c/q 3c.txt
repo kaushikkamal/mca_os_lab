@@ -1,0 +1,4 @@
+/* You need to put proper explanatory comment in your program to demonstrate the purpose
+and why you have used the C statements and system calls */
+
+Write a C program to create a user level thread using system call pthread_create( ) and assign the thread to display the “HELLO WORLD” . Use pthread_exit() in your program (if possible) for terminating the thread
