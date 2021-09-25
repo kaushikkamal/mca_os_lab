@@ -50,7 +50,8 @@ void handle_function(int sig)
         printf("\nFibonacci Series:\n");
         for (i = 0; i < N; i++)
         {
-            printf("%d  ", *(buffer + i));
+            // printf("%d  ", *(buffer + i));
+            printf("%d  ", buffer[i]);
         }
         printf("\n\n");
         read(fd[0], &sig, sizeof(sig)); // read signal ID from read end
