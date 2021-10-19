@@ -1,0 +1,8 @@
+/* You need to put proper explanatory comment in your program to demonstrate the purpose and why you have used the C statements and system calls */
+
+Write two C programs named program1.c and program2.c to demonstrate the concept of shared memory where program1 (process1) will be responsible for writing its process id and program2 (process2) will be responsible for reading the contents whatever program1 (process1)writes. Moreover, try to remove the shared memory segment that is created for your above mentioned operations properly by using proper system call. Try to demonstrate properly
+
+Hints:
+• For creating a shared memory segment or accessing an existing shared memory segment you need a system call- shmget(key_t key, size_t size, int oflag).
+• For detaches the segment you need a system call- shmdt(const void *shmaddr)
+• To know how to provide a variety of operations on a shared memory segment, you may go through the system call- shmctl(int shmid, int cmd, struct shmid_ds *buff)

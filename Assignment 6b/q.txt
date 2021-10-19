@@ -1,0 +1,31 @@
+/* You need to put proper explanatory comment in your program to demonstrate the purpose and why you have used the C statements and system calls */
+
+Write a C program to get the process submission time & finished time of a process. For this assignment your C program will create a child process and writes the submission and finished time of the child process into a file. Learn about times() system call. Also learn about use of gettimeofday() system call.
+
+Hints:
+
+• The UNIX time(2) is basic time related system call, time_t time(time_t *t);, returns the current time in seconds. It returns time as the number of seconds since the Epoch, 1970-01-01 00:00:00 +0000 (UTC). If t is non-NULL, the return value is also stored in the memory pointed to by t.
+• /* Structure describing CPU time used by a process and its children in sys/times.h*/
+
+struct tms
+{
+    clock_t tms_utime; /* User CPU time. */
+    clock_t tms_stime; /* System CPU time. */
+    clock_t tms_cutime; /* User CPU time of dead children. */
+    clock_t tms_cstime; /* System CPU time of dead children. */
+};
+
+• Example program:
+
+#include <sys/types.h>
+#include <sys/times.h>
+main()
+{
+    struct tms before, after;
+    times(&before);
+    /* ... place code to be timed here ... */
+    times(&after);
+    printf("User time: %ld seconds\n", after.tms_utime - before.tms_utime);
+    printf("System time: %ld seconds\n", after.tms_stime - before.tms_stime);
+    exit(0);
+}
