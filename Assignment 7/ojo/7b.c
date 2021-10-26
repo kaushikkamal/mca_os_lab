@@ -27,7 +27,7 @@ int main()
         else // no lock is not present
         {
             read(fd, buf, sizeof(buf));               // read from file
-            printf("\nData from data.txt: %s\n\n", buf);
+            printf("\nData from file.txt: %s\n\n", buf);
             exit(0);                                        // exit successfully
         }
 
