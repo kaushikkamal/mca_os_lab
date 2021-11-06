@@ -1,0 +1,15 @@
+/* You need to put proper explanatory comment in your program to demonstrate the purpose and why you have used the C statements and system calls */
+
+Assignment 8(a):-
+
+Write two C programs named program1.c and program2.c and both will be responsible for reading the contents of a single file. Now use the concept of semaphore to provide synchronization between the processes program1 and program2, so that program2 can read the contents of the specified file only after reading the contents of the file by program1. Again if the program1 runs for n times, then program2 can read the contents of the file at most n times only, not more than that. Moreover you have to remove the semaphore that is created for your above mentioned operations properly by using proper system call.
+
+Hints:
+
+• For creating a semaphore set and accessing an existing semaphore set, you need a system call - semget(key_t key, int nsems, int oflag)
+
+• For performing operations on one or more of the semaphores in the set of semaphores you need a system call - semop(int semid, struct sembuf *opsptr, size_t nops)
+
+• For performing various control operations like setting the value of a semaphore in the semaphore array, you need a system call -semctl(int semid, int semnum, int cmd, arguments)
+
+The arguments parameter is optional., cmd may be macro IPC_RMID for removing semaphore set specified by the semid and macro SETVAL for setting the value of a semaphore.
