@@ -1,0 +1,5 @@
+Write two C programs, one for client program and another for server program so that you can demonstrate the IPC mechanism using Message Queue functionality.
+
+* Print the message queue ID and any error condition which may arise.
+* Remove the queue using msgctl() system call.
+* Use the system call msgget(), msgsnd(), msgrcv(), msgctl() for the program.

@@ -14,7 +14,7 @@ int main()
     key = 1234; // unique key for the shared memory
 
     shmid = shmget(key, 1024, 0666 | IPC_CREAT); //creates shared memory segment with key 1234, having size 1024 bytes with both read and write permission.
-    if (shmid == -1)  // check if shared memory segment is created or not
+    if (shmid == -1)                             // check if shared memory segment is created or not
     {
         exit(1);
     }
