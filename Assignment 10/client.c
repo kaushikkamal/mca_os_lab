@@ -16,20 +16,20 @@ typedef struct
 int main()
 {
     MSGBUFFER buf;
-    int msqid;
+    int msgqid;
     key_t key;
     key = 1234;
 
-    msqid = msgget(key, 0666); /* connect to the queue */
-    if (msqid == -1)           // check for error
+    msgqid = msgget(key, 0666); /* connect to the queue */
+    if (msgqid == -1)           // check for error
     {
         perror("msgget");
         exit(1);
     }
-
+    printf("Msg Queue ID: %d\n\n", msgqid);
     while (1)
     {
-        if (msgrcv(msqid, &buf, sizeof(buf.mtext), 0, 0) == -1) // used to receive the data from queue
+        if (msgrcv(msgqid, &buf, sizeof(buf.mtext), 0, 0) == -1) // used to receive the data from queue
         {
             perror("msgrcv");
             exit(1);

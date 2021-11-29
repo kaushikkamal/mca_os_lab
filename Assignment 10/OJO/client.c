@@ -33,7 +33,7 @@ int main()
             perror("msgrcv");
             exit(1);
         }
-        printf("Mesage from Server: %s\n\n", buf.mtext);
+        printf("Message received from Server: %s\n\n", buf.mtext);
     }
     return 0;
 }

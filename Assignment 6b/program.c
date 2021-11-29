@@ -12,7 +12,6 @@ int main()
     x = fork();
     if (x == 0)
     {
-        
         exit(0);
     }
     else if (x < 0)

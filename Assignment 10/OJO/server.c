@@ -26,7 +26,7 @@ int main()
         exit(1);
     }
 
-    printf("Enter text: ");
+    printf("Enter text to share with client: ");
     buf.mtype = 1;
 
     while (fgets(buf.mtext, sizeof buf.mtext, stdin) != NULL) // read from user

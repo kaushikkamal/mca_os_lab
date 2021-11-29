@@ -1,0 +1,1 @@
+Write a Linux device driver for a hypothetical character device which converts any string to CAPLOCKS that is given to it. i.e. If we write any string to the device file represented by the device and then read that file, we get the string written earlier but in CAPLOCKS (for eg., myDev being our device, echo “hello” >/dev/myDev ; cat /dev/ myDev would print “HELLO”)

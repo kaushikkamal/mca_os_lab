@@ -16,16 +16,17 @@ typedef struct
 int main()
 {
     MSGBUFFER buf;
-    int msqid;
+    int msgqid;
     key_t key;
     key = 1234;
 
-    msqid = msgget(key, 0666 | IPC_CREAT); // used to create the message queue
-    if (msqid == -1) // check for error
+    msgqid = msgget(key, 0666 | IPC_CREAT); // used to create the message queue
+    if (msgqid == -1) // check for error
     {
         perror("msgget");
         exit(1);
     }
+    printf("Msg Queue ID: %d",msgqid);
 
     printf("Enter text: ");
     buf.mtype = 1;  // set the msg type to 1
@@ -39,13 +40,13 @@ int main()
             buf.mtext[len - 1] = '\0';
         }
 
-        if (msgsnd(msqid, &buf, len + 1, 0) == -1)  // used to sent the data using queue 
+        if (msgsnd(msgqid, &buf, len + 1, 0) == -1)  // used to sent the data using queue 
         {
             perror("msgsnd");
         }
     }
 
-    if (msgctl(msqid, IPC_RMID, NULL) == -1) // used to remove the queue
+    if (msgctl(msgqid, IPC_RMID, NULL) == -1) // used to remove the queue
     {
         perror("msgctl");
         exit(1);
