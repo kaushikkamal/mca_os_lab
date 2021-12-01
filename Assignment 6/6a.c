@@ -2,7 +2,6 @@
 #include <time.h>
 #include <stdio.h>
 #include <unistd.h>
-#include <unistd.h>
 #include <stdlib.h>
 
 int main()
@@ -17,9 +16,9 @@ int main()
     {
         time_t begin = time(NULL);
 
-        printf("Chid process\n");
-        printf("Chid Process Id: %d\n", getpid());
-        printf("Chid Parent Id: %d\n", getppid());
+        printf("Child process\n");
+        printf("Child Process Id: %d\n", getpid());
+        printf("Child Parent Id: %d\n", getppid());
         sleep(3);
         time_t end = time(NULL);
 
