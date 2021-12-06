@@ -9,9 +9,7 @@ int main()
 {
     int fd;                           // file descriptor
     char buffer1[50], buffer2[50];    // character array to read and write data
-    // char *fifofile = "/tmp/fifofile"; //FIFO named pipe where to read and write
-
-    // mkfifo(fifofile, 0666); // creating named pipe with permission to read and write
+ 
     mknod("mkfile", S_IFIFO | 0666, 0);
 
     printf("Program 1");

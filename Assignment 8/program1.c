@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sem.h>
+#include <string.h>
 #include <unistd.h>
 
 int main()
@@ -13,7 +14,7 @@ int main()
    key_t key;
    struct sembuf sbuf;
    size_t nsem = 1;
-   
+
    key = 1233;
 
    id = semget(key, 1, 0666 | IPC_CREAT); //grab the semaphore set
@@ -45,7 +46,8 @@ int main()
    {
       exit(1); // exit unsuccessfully
    }
-
+   memset(&buffer, 0, sizeof(buffer));
+   // memset(buffer, sizeof(buffer), '\0');
    read(fd, buffer, sizeof(buffer));               // read from file
    printf("\nData from data.txt: %s\n\n", buffer); // print the read message
    close(fd);                                      // close the file

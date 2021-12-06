@@ -11,7 +11,7 @@ int main()
     printf("\nEnter number of pages: ");
     scanf("%d", &numPages);
 
-    printf("\nEnter page nuumbers:\n");
+    printf("\nEnter page numbers:\n");
 
     for (i = 0; i < numPages; ++i)
     {

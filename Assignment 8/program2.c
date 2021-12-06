@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/sem.h>
+#include <string.h>
 #include <unistd.h>
 
 int main()
@@ -20,6 +21,7 @@ int main()
 
    if (id < 0)
    {
+      printf("semget\n");
       exit(1); // exit unsuccessfully
    }
 
@@ -34,9 +36,10 @@ int main()
    fd = open("data.txt", O_RDONLY); // open file in Read only mode
    if (fd < 0)                      // check if file is opened or not
    {
+      printf("File is not opened.\n");
       exit(1); // exit unsuccessfully
    }
-
+   memset(&buffer, 0, sizeof(buffer));
    read(fd, buffer, sizeof(buffer));             // read from file
    printf("\nData from data.txt: %s\n", buffer); // print the read message
    close(fd);                                    // close the file
